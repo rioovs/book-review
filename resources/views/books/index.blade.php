@@ -1,9 +1,33 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="mb-10 text-2x1">Books</h1>
+    <h1 class="mb-10 text-2xl">Books</h1>
 
-    <form action=""></form>
+    <form action="{{ route('books.index') }}" method="GET" class="mb-4 flex space-x-2 items-center">
+        <input class="input h-10" type="text" name="title" placeholder="Search By Title" value="{{ request('title') }}">
+        <input type="hidden" name="filter" value="{{ request('filter') }}">
+        <button class="btn h-10" type="submit">Search</button>
+        <a href="{{ route('books.index') }}" class="btn h-10">Clear</a>
+    </form>
+
+    <div class="filter-container mb-4 flex">
+        @php
+            $filters = [
+                '' => 'Latest',
+                'popular_last_month' => 'Popular Last Month',
+                'popular_last_6months' => 'Popular Last 6 Months',
+                'highest_rated_last_month' => 'Highest Rated Last Month',
+                'highest_rated_last_6months' => 'Highest Rated Last 6 Month',
+            ];
+        @endphp
+
+        @foreach ($filters as $key => $label)
+            <a href="{{ route('books.index', [...request()->query(), 'filter' => $key]) }}"
+                class="{{ request('filter') == $key || (request('filter') == null && $key == '') ? 'filter-item-active' : 'filter-item' }}">
+                {{ $label }}</a>
+        @endforeach
+    </div>
+
 
     <ul>
         @forelse ($books as $book)
@@ -33,5 +57,10 @@
                 </div>
             </li>
         @endforelse
+        @if ($books->count())
+            <nav class="mt-4">
+                {{ $books->links() }}
+            </nav>
+        @endif
     </ul>
 @endsection
